@@ -1,0 +1,23 @@
+* {
+  color: white;
+  font-family: sans-serif;
+  font-weight: bold;
+}
+
+body {
+  background-color: #8e6d6d;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  background-color: #cfde7b;
+}
+  
+td, th {
+  padding: 0;
+}
+
+tr {
+  line-height: 0;
+}
