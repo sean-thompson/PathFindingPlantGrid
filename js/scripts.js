@@ -84,7 +84,7 @@ function createTable(){
   return table;
 }
 
-function updateSoil() {
+function renderTable() {
   for (var y = 0; y < tableContents.length; y++) {
     for (var x = 0; x < tableContents[y].length; x++) {
       if (tableContents[y][x] !== 0) {
@@ -102,6 +102,15 @@ function updateSoil() {
         table.find('tr').eq(y).find('td').eq(x).css('background-color', 'cyan');
       } else {
         table.find('tr').eq(y).find('td').eq(x).css('background-color', 'magenta');
+      }
+
+      const cellImage = table.find("tr").eq(y).find("td").eq(x).find("img");
+      const src = imageList[tableContents[y][x]];
+      
+      if (cellImage.attr("src") !== src) {
+        cellImage.hide();
+        cellImage.attr("src", src);
+        cellImage.fadeIn();
       }
     }
   }
@@ -155,12 +164,6 @@ $(document).ready(function() {
       var cellImage = table.find("tr").eq(offsetY).find("td").eq(offsetX).find("img");
 
       tableContents[offsetY][offsetX] = event.key;
-
-      if(offsetY >= 0 && offsetX >= 0){
-        cellImage.hide();
-        cellImage.attr("src", imageList[event.key]);
-        cellImage.fadeIn();
-      }
     } else {
       return;
     }
@@ -184,18 +187,13 @@ $(document).ready(function() {
         for (var y = 0; y < 5; y++) {
           var cellImage = table.find("tr").eq(y+offsetY-2).find("td").eq(x+offsetX-2).find("img");
 
-            if(cellImage.attr("src") == imageList[0] && y+offsetY-2 >= 0 && x+offsetX-2 >= 0){
-              
-              tableContents[y+offsetY-2][x+offsetX-2] = data[x][y];
-
-              cellImage.hide();
-              cellImage.attr("src", imageList[data[x][y]]);
-              cellImage.fadeIn();
-            }
+          if(cellImage.attr("src") == imageList[0] && y+offsetY-2 >= 0 && x+offsetX-2 >= 0){
+            tableContents[y+offsetY-2][x+offsetX-2] = data[x][y];
+          }
         }
       }
     }
 
-    updateSoil();
+    renderTable();
   });
 });
