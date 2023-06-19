@@ -58,7 +58,8 @@ function createTable(){
 
       // Click event to swap the plant
       image.on("click", function() {
-        console.log("AI PLANT")
+        console.log(offsetX, offsetY);
+        findPaths(offsetY, offsetX);
       });
 
       // Click event to return to soil
@@ -79,6 +80,59 @@ function createTable(){
   // Append the table to the body
   $("body").append(table);
   return table;
+}
+
+function findPaths(startRowIndex, startCellIndex) {
+  var startEnergy = 20;
+  var queue = [[startRowIndex, startCellIndex, startEnergy]];
+  var shortestRoutes = {};
+
+  while (queue.length > 0) {
+    var current = queue.shift();
+    var rowIndex = current[0];
+    var cellIndex = current[1];
+    var energy = current[2];
+
+    for (var i = rowIndex - 1; i <= rowIndex + 1; i++) {
+      for (var j = cellIndex - 1; j <= cellIndex + 1; j++) {
+        if (i === rowIndex && j === cellIndex) {
+          continue;
+        }
+
+        if (i >= 0 && i < tableContents.length && j >= 0 && j < tableContents[i].length) {
+          var nextWeight = tableContents[i][j];
+          if (energy >= nextWeight) {
+            if (!shortestRoutes[i]) {
+              shortestRoutes[i] = {};
+            }
+
+            if (!shortestRoutes[i][j]) {
+              shortestRoutes[i][j] = 0;
+            }
+
+            //console.log(shortestRoutes);
+            let prevEnergy = shortestRoutes[i][j];
+            let newEnergy = energy - tableContents[i][j];
+            if (newEnergy > prevEnergy) {
+              shortestRoutes[i][j] = newEnergy
+              queue.push([i, j, newEnergy]);
+            }
+
+          }
+        }
+      }
+    }
+  }
+
+  // Update the table with remaining energy values
+  for (var row in shortestRoutes) {
+    for (var cell in shortestRoutes[row]) {
+      var remainingEnergy = shortestRoutes[row][cell];
+      table.find('tr').eq(parseInt(row)).find('td').eq(parseInt(cell)).attr('title', remainingEnergy);
+    }
+  }
+
+  console.log("shortest routes", shortestRoutes);
 }
 
 function renderTable() {
