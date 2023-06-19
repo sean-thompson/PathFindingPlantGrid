@@ -58,18 +58,15 @@ function createTable(){
 
       // Click event to swap the plant
       image.on("click", function() {
-        var currentIndex = imageList.indexOf($(this).attr("src"));
-        var nextIndex = currentIndex % (imageList.length-1) + 1;
-        $(this).hide();
-        $(this).attr("src", imageList[nextIndex]);
-        $(this).fadeIn();
+        console.log("AI PLANT")
       });
 
       // Click event to return to soil
       image.on('contextmenu', function(event) {
         event.preventDefault(); // Prevent the default context menu behavior
     
-        $(this).attr("src", imageList[0]);
+        tableContents[offsetY][offsetX] = 0;
+        renderTable();
       });
 
       cell.append(image);
@@ -88,7 +85,7 @@ function renderTable() {
   for (var y = 0; y < tableContents.length; y++) {
     for (var x = 0; x < tableContents[y].length; x++) {
       if (tableContents[y][x] !== 0) {
-        table.find('tr').eq(y).find('td').eq(x).css('background-color', 'yellow');
+        table.find('tr').eq(y).find('td').eq(x).css('background-color', 'cyan');
       } else if (
         (y > 0 && tableContents[y - 1][x] !== 0) || // Above
         (y > 0 && x > 0 && tableContents[y - 1][x - 1] !== 0) || // Above Left
@@ -99,14 +96,14 @@ function renderTable() {
         (x < tableContents[y].length - 1 && tableContents[y][x + 1] !== 0) || // Right
         (y > 0 && x < tableContents[y].length - 1 && tableContents[y - 1][x + 1] !== 0) // Above Right
       ) {
-        table.find('tr').eq(y).find('td').eq(x).css('background-color', 'cyan');
+        table.find('tr').eq(y).find('td').eq(x).css('background-color', 'yellow');
       } else {
         table.find('tr').eq(y).find('td').eq(x).css('background-color', 'magenta');
       }
 
       const cellImage = table.find("tr").eq(y).find("td").eq(x).find("img");
       const src = imageList[tableContents[y][x]];
-      
+
       if (cellImage.attr("src") !== src) {
         cellImage.hide();
         cellImage.attr("src", src);
