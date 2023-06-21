@@ -1,6 +1,6 @@
 // Define the number of rows and cells
-const numCells = 14; // Number of cells per row
 const numRows = 13; // Number of rows
+const numCells = 14; // Number of cells per row
 const sampleSize = 3; // Size of the sample grid
 const startEnergy = 10;
 
@@ -85,10 +85,11 @@ function createTable(){
 }
 
 //finds the shortest route to each surrounding plant
-//note - calculates the wrong distance to the node you pass to it, because it walks away then back; but that doesn't affect any of the patterns
 function findPaths(startRowIndex, startCellIndex) {
   var queue = [[startRowIndex, startCellIndex, startEnergy]];
   var shortestRoutes = {};
+  shortestRoutes[startRowIndex] = {}
+  shortestRoutes[startRowIndex][startCellIndex] = startEnergy;
 
   while (queue.length > 0) {
     var current = queue.shift();
@@ -114,9 +115,14 @@ function findPaths(startRowIndex, startCellIndex) {
             }
 
             let prevEnergy = shortestRoutes[i][j];
-            let newEnergy = energy - imageList[tableContents[i][j]].weight;
+            let newEnergy = energy;
+
+            if (tableContents[rowIndex][cellIndex] != tableContents[i][j]) {
+              newEnergy -= imageList[tableContents[i][j]].weight;
+            }
+
             if (newEnergy > prevEnergy) {
-              shortestRoutes[i][j] = newEnergy
+              shortestRoutes[i][j] = newEnergy;
               queue.push([i, j, newEnergy]);
             }
           }
@@ -132,7 +138,7 @@ function findPaths(startRowIndex, startCellIndex) {
   for (var row in shortestRoutes) {
     for (var cell in shortestRoutes[row]) {
       var remainingEnergy = shortestRoutes[row][cell];
-      table.find('tr').eq(parseInt(row)).find('td').eq(parseInt(cell)).attr('title', remainingEnergy);
+      table.find('tr').eq(parseInt(row)).find('td').eq(parseInt(cell)).attr('title', remainingEnergy + "(" + row + "," + cell + ")");
     }
   }
 
