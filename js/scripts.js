@@ -82,6 +82,8 @@ function createTable(){
   return table;
 }
 
+//finds the shortest route to each surrounding plant
+//note - calculates the wrong distance to the node you pass to it, because it walks away then back; but that doesn't affect any of the patterns
 function findPaths(startRowIndex, startCellIndex) {
   var startEnergy = 20;
   var queue = [[startRowIndex, startCellIndex, startEnergy]];
