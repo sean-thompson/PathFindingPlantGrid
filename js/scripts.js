@@ -2,6 +2,8 @@
 const numCells = 14; // Number of cells per row
 const numRows = 13; // Number of rows
 const sampleSize = 3; // Size of the sample grid
+const startEnergy = 10;
+
 let sampleArray = []; // Array to store the changed samples
 
 let element;//closest element to mouse
@@ -13,14 +15,14 @@ let tableContents = [];
 
 // Predefined list of images to switch between
 const imageList = [
-  "./img/dirt.png",
-  "./img/bluebells.png",
-  "./img/bracken.png",
-  "./img/brambles.png",
-  "./img/cottongrass.png",
-  "./img/moss.png",
-  "./img/mushrooms.png",
-  "./img/wildgarlic.png"
+  {image:"./img/dirt.png", weight:99999},
+  {image:"./img/bluebells.png", weight:2},
+  {image:"./img/bracken.png", weight:1},
+  {image:"./img/brambles.png", weight:3},
+  {image:"./img/cottongrass.png", weight:1},
+  {image:"./img/moss.png", weight:1},
+  {image:"./img/mushrooms.png", weight:2},
+  {image:"./img/wildgarlic.png", weight:2}
 ];
 
 //trees
@@ -50,7 +52,7 @@ function createTable(){
       tableContents[i].push(0);
       var cell = $("<td>");
       var imageIndex = 0; // First image in imageList is soil
-      var imageSrc = imageList[imageIndex];
+      var imageSrc = imageList[imageIndex].image;
       var image = $("<img>").attr("src", imageSrc);
 
       image.width("32px");
@@ -85,7 +87,6 @@ function createTable(){
 //finds the shortest route to each surrounding plant
 //note - calculates the wrong distance to the node you pass to it, because it walks away then back; but that doesn't affect any of the patterns
 function findPaths(startRowIndex, startCellIndex) {
-  var startEnergy = 20;
   var queue = [[startRowIndex, startCellIndex, startEnergy]];
   var shortestRoutes = {};
 
@@ -112,19 +113,20 @@ function findPaths(startRowIndex, startCellIndex) {
               shortestRoutes[i][j] = 0;
             }
 
-            //console.log(shortestRoutes);
             let prevEnergy = shortestRoutes[i][j];
-            let newEnergy = energy - tableContents[i][j];
+            let newEnergy = energy - imageList[tableContents[i][j]].weight;
             if (newEnergy > prevEnergy) {
               shortestRoutes[i][j] = newEnergy
               queue.push([i, j, newEnergy]);
             }
-
           }
         }
       }
     }
   }
+
+  //clear current titles
+  $('table td').removeAttr('title');
 
   // Update the table with remaining energy values
   for (var row in shortestRoutes) {
@@ -158,7 +160,7 @@ function renderTable() {
       }
 
       const cellImage = table.find("tr").eq(y).find("td").eq(x).find("img");
-      const src = imageList[tableContents[y][x]];
+      const src = imageList[tableContents[y][x]].image;
 
       if (cellImage.attr("src") !== src) {
         cellImage.hide();
@@ -240,7 +242,7 @@ $(document).ready(function() {
         for (var y = 0; y < 5; y++) {
           var cellImage = table.find("tr").eq(y+offsetY-2).find("td").eq(x+offsetX-2).find("img");
 
-          if(cellImage.attr("src") == imageList[0] && y+offsetY-2 >= 0 && x+offsetX-2 >= 0){
+          if(cellImage.attr("src") == imageList[0].image && y+offsetY-2 >= 0 && x+offsetX-2 >= 0){
             tableContents[y+offsetY-2][x+offsetX-2] = data[x][y];
           }
         }
