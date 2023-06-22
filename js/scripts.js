@@ -104,6 +104,10 @@ function findPaths(startRowIndex, startCellIndex) {
         }
 
         if (i >= 0 && i < tableContents.length && j >= 0 && j < tableContents[i].length) {
+          if (tableContents[i][j] == 0) {
+            continue;
+          }
+
           var nextWeight = tableContents[i][j];
           if (energy >= nextWeight) {
             if (!shortestRoutes[i]) {
@@ -142,7 +146,56 @@ function findPaths(startRowIndex, startCellIndex) {
     }
   }
 
-  console.log("shortest routes", shortestRoutes);
+  console.log(shortestRoutes);
+
+  // find all the ractangles that exist in shortestRoutes with no soil
+  const rectangles = [];
+  for (let height = 1; height <= 5; height++) {
+    for (let width = 1; width <= 5; width++) {
+      if (height === 1 && width === 1) {
+        continue; // Skip 1x1 rectangle
+      }
+
+      // Find each of the top left corners
+      for (let i = 0; i <= numRows-height; i++) {
+        for (let j = 0; j <= numCells-width; j++) {
+
+          //check to see if the entire rectangle exists
+          let isRectangle = true;
+          let totalEnergy = 0;
+          rectangle: for (let y = i; y < i+height; y++) {
+
+            if (!shortestRoutes[y]) {
+              isRectangle = false;
+              break rectangle;
+            }
+
+            for (let x = j; x < j+width; x++) {
+
+              if (!shortestRoutes[y][x]) {
+                isRectangle = false;
+                break rectangle;
+              }
+
+              if (tableContents[y][x] == 0) {//soil
+                isRectangle = false;
+                break rectangle;
+              }
+
+              totalEnergy += shortestRoutes[y][x];
+            }
+          }
+
+          if (isRectangle) {
+            rectangles.push({row:i, cell:j, height:height, width:width, score:totalEnergy});
+          }
+        }
+      }
+    }
+  }
+
+  rectangles.sort((a, b) => b.score - a.score);
+  console.log(rectangles);
 }
 
 function renderTable() {
