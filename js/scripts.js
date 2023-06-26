@@ -1,6 +1,6 @@
 // Define the number of rows and cells
-const numRows = 13; // Number of rows
-const numCells = 14; // Number of cells per row
+const numRows = 21; // Number of rows
+const numCells = 28; // Number of cells per row
 const sampleSize = 3; // Size of the sample grid
 const startEnergy = 10; // search start energy
 const maxSampleSize = 5; //max width and height of samples to match
@@ -61,7 +61,6 @@ function createTable(){
 
       // Click event to swap the plant
       image.on("click", function() {
-        console.log(offsetY, offsetX);
         findPaths(offsetY, offsetX);
       });
 
@@ -146,8 +145,6 @@ function findPaths(startRowIndex, startCellIndex) {
       table.find('tr').eq(parseInt(row)).find('td').eq(parseInt(cell)).attr('title', remainingEnergy + "(" + row + "," + cell + ")");
     }
   }
-
-  //console.log(shortestRoutes);
 
   // find all the ractangles that exist in shortestRoutes with no soil
   const rectangles = [];
@@ -239,10 +236,9 @@ function findPaths(startRowIndex, startCellIndex) {
         }
 
         if (matchFound) {
-          console.log("found: ", rectangle);
-          console.log("place it here: ", i, j);
-          printSample(rectangle.row, rectangle.cell, rectangle.height, rectangle.width);
-          printSample(i, j, rectangle.height, rectangle.width);
+          tableContents[startRowIndex][startCellIndex] = tableContents[rectangle.row+startRowIndex-i][rectangle.cell+startCellIndex-j];
+          renderTable();
+
           break search;
         }
       }
