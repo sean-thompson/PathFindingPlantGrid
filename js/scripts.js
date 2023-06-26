@@ -2,7 +2,8 @@
 const numRows = 13; // Number of rows
 const numCells = 14; // Number of cells per row
 const sampleSize = 3; // Size of the sample grid
-const startEnergy = 10;
+const startEnergy = 10; // search start energy
+const maxSampleSize = 5; //max width and height of samples to match
 
 let sampleArray = []; // Array to store the changed samples
 
@@ -60,7 +61,7 @@ function createTable(){
 
       // Click event to swap the plant
       image.on("click", function() {
-        console.log(offsetX, offsetY);
+        console.log(offsetY, offsetX);
         findPaths(offsetY, offsetX);
       });
 
@@ -146,12 +147,12 @@ function findPaths(startRowIndex, startCellIndex) {
     }
   }
 
-  console.log(shortestRoutes);
+  //console.log(shortestRoutes);
 
   // find all the ractangles that exist in shortestRoutes with no soil
   const rectangles = [];
-  for (let height = 1; height <= 5; height++) {
-    for (let width = 1; width <= 5; width++) {
+  for (let height = 1; height <= maxSampleSize; height++) {
+    for (let width = 1; width <= maxSampleSize; width++) {
       if (height === 1 && width === 1) {
         continue; // Skip 1x1 rectangle
       }
@@ -195,7 +196,79 @@ function findPaths(startRowIndex, startCellIndex) {
   }
 
   rectangles.sort((a, b) => b.score - a.score);
-  console.log(rectangles);
+
+  search: for (let n = 0; n < rectangles.length; n++) {
+    const rectangle = rectangles[n];//current sample rectangle
+
+    // find all the location where one of the rectangles could be placed such that they overlap the start position
+    for (let i = startRowIndex-rectangle.height+1; i <= startRowIndex; i++) {
+      if (i + rectangle.height > tableContents.length) {
+        continue;
+      }
+
+      if (i < 0) {
+        continue;
+      }
+
+      //compare every cell from the sample to the those positioned round the start cell to see if we have a match
+      for (let j = startCellIndex-rectangle.width+1; j <= startCellIndex; j++) {
+        if (j + rectangle.width > tableContents[i].length) {
+          continue;
+        }
+
+        if (j < 0) {
+          continue;
+        }
+
+        let matchFound = true;
+
+        rectangle: for (let y = 0; y < rectangle.height; y++) {
+          for (let x = 0; x < rectangle.width; x++) {
+
+            //skip the space we're trying to grow on.
+            if(i+y == startRowIndex && j+x == startCellIndex) {
+              continue;
+            }
+
+            //if there's no match...
+            if (tableContents[i+y][j+x] != tableContents[rectangle.row+y][rectangle.cell+x]) {
+              matchFound = false;
+              break rectangle;
+            }
+          }
+        }
+
+        if (matchFound) {
+          console.log("found: ", rectangle);
+          console.log("place it here: ", i, j);
+          printSample(rectangle.row, rectangle.cell, rectangle.height, rectangle.width);
+          printSample(i, j, rectangle.height, rectangle.width);
+          break search;
+        }
+      }
+    }
+  }
+}
+
+function printSample(y, x, h, w)
+{
+  let s = "";
+
+  for (let i = y; i<y+h; i++) {
+
+    if (tableContents[i]) {
+      for (let j = x; j<x+w; j++) {
+        if (tableContents[i][j]) {
+          s += tableContents[i][j] + " ";
+        } else {
+          s += "* ";
+        }
+      }
+    }
+    s += "\n"
+  }
+
+  console.log(s);
 }
 
 function renderTable() {
