@@ -312,7 +312,7 @@ function renderTable() {
   for (var y = 0; y < tableContents.length; y++) {
     for (var x = 0; x < tableContents[y].length; x++) {
       if (tableContents[y][x] !== 0) {
-        table.find('tr').eq(y).find('td').eq(x).css('background-color', 'cyan');
+        table.find('tr').eq(y).find('td').eq(x).css('background-color', '#63b647');
       } else if (
         (y > 0 && tableContents[y - 1][x] !== 0) || // Above
         (y > 0 && x > 0 && tableContents[y - 1][x - 1] !== 0) || // Above Left
@@ -323,9 +323,9 @@ function renderTable() {
         (x < tableContents[y].length - 1 && tableContents[y][x + 1] !== 0) || // Right
         (y > 0 && x < tableContents[y].length - 1 && tableContents[y - 1][x + 1] !== 0) // Above Right
       ) {
-        table.find('tr').eq(y).find('td').eq(x).css('background-color', 'yellow');
+        table.find('tr').eq(y).find('td').eq(x).css('background-color', '#a28d48');
       } else {
-        table.find('tr').eq(y).find('td').eq(x).css('background-color', 'magenta');
+        table.find('tr').eq(y).find('td').eq(x).css('background-color', '#99A74B');
       }
 
       const cellImage = table.find("tr").eq(y).find("td").eq(x).find("img");
