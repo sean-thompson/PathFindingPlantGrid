@@ -26,6 +26,12 @@ const imageList = [
   {image:"./img/wildgarlic.png", weight:2}
 ];
 
+const sampleStates = {
+  PERFECT_MATCH: "perefect_match",
+  PARTIAL_MATCH: "partial_match",
+  NO_MATCH: "no_match"
+}
+
 //trees
 const trees = {
   "oak":
@@ -193,6 +199,8 @@ function findPaths(startRowIndex, startCellIndex) {
   }
 
   rectangles.sort((a, b) => b.score - a.score);
+  let testedRectangles = [];
+  let maxRemainingScore = 0;
 
   search: for (let n = 0; n < rectangles.length; n++) {
     const rectangle = rectangles[n];//current sample rectangle
@@ -207,8 +215,10 @@ function findPaths(startRowIndex, startCellIndex) {
         continue;
       }
 
-      //compare every cell from the sample to the those positioned round the start cell to see if we have a match
       for (let j = startCellIndex-rectangle.width+1; j <= startCellIndex; j++) {
+        
+        let score = 0;
+
         if (j + rectangle.width > tableContents[i].length) {
           continue;
         }
@@ -217,9 +227,10 @@ function findPaths(startRowIndex, startCellIndex) {
           continue;
         }
 
-        let matchFound = true;
+        let sampleState = sampleStates.PERFECT_MATCH
 
-        rectangle: for (let y = 0; y < rectangle.height; y++) {
+        //compare every cell from the sample to the those positioned round the start cell to see if we have a match
+        sample: for (let y = 0; y < rectangle.height; y++) {
           for (let x = 0; x < rectangle.width; x++) {
 
             //skip the space we're trying to grow on.
@@ -227,19 +238,49 @@ function findPaths(startRowIndex, startCellIndex) {
               continue;
             }
 
-            //if there's no match...
-            if (tableContents[i+y][j+x] != tableContents[rectangle.row+y][rectangle.cell+x]) {
-              matchFound = false;
-              break rectangle;
+            // test for a match
+            if (tableContents[i+y][j+x] == tableContents[rectangle.row+y][rectangle.cell+x]) {
+              score += shortestRoutes[rectangle.row+y][rectangle.cell+x];
+            }
+            else {
+              sampleState = sampleStates.PARTIAL_MATCH;
+              
+              if (tableContents[i+y][j+x] != 0) {
+                sampleState = sampleStates.NO_MATCH;
+                break sample;
+              }
             }
           }
         }
 
-        if (matchFound) {
+        if (sampleState == sampleStates.PERFECT_MATCH) {
           tableContents[startRowIndex][startCellIndex] = tableContents[rectangle.row+startRowIndex-i][rectangle.cell+startCellIndex-j];
           renderTable();
 
           break search;
+        } else if (sampleState == sampleStates.PARTIAL_MATCH) {
+          const testedRectangle = Object.assign({}, rectangle);
+
+          testedRectangle.score = score;
+          testedRectangle.i = i;
+          testedRectangle.j = j;
+
+          testedRectangles.push(testedRectangle);
+
+          if (score > maxRemainingScore) {
+            maxRemainingScore = score;
+          }
+
+          if (maxRemainingScore > rectangle.score) {
+
+            testedRectangles.sort((a, b) => b.score - a.score);
+
+            tableContents[startRowIndex][startCellIndex] = 
+              tableContents[testedRectangles[0].row+startRowIndex-testedRectangles[0].i][testedRectangles[0].cell+startCellIndex-testedRectangles[0].j];
+            renderTable();
+
+            break search;
+          }
         }
       }
     }
