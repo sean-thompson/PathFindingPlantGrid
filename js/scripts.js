@@ -342,6 +342,62 @@ function renderTable() {
 
 $(document).ready(function() {
 
+  var progressBar = $('<div>').addClass('progress-bar');
+  var proggressLength = 0;
+  var coverAmount = 0;
+  
+  $('body').append(progressBar);
+  
+  function animateProgressBar() {
+    progressBar.css({
+      'width': '0px',
+      height: '8px',
+      'background-color': '#305d64'
+    }); // Reset progress bar width to 0%
+    
+    // Animate the progress bar width to 100% over the specified duration
+    progressBar.stop().animate({ width: numCells * 32 + "px" }, proggressLength, 'linear', function() {
+
+      let eligableSoil = [];
+
+      for (var y = 0; y < tableContents.length; y++) {
+        for (var x = 0; x < tableContents[y].length; x++) {
+          if (tableContents[y][x] !== 0) {
+            //not soil
+          } else if (
+            (y > 0 && tableContents[y - 1][x] !== 0) || // Above
+            (y > 0 && x > 0 && tableContents[y - 1][x - 1] !== 0) || // Above Left
+            (x > 0 && tableContents[y][x - 1] !== 0) || // Left
+            (y < tableContents.length - 1 && x > 0 && tableContents[y + 1][x - 1] !== 0) || // Below Left
+            (y < tableContents.length - 1 && tableContents[y + 1][x] !== 0) || // Below
+            (y < tableContents.length - 1 && x < tableContents[y].length - 1 && tableContents[y + 1][x + 1] !== 0) || // Below Right
+            (x < tableContents[y].length - 1 && tableContents[y][x + 1] !== 0) || // Right
+            (y > 0 && x < tableContents[y].length - 1 && tableContents[y - 1][x + 1] !== 0) // Above Right
+          ) {
+            eligableSoil.push({y:y, x:x, r:Math.random()});
+          } else {
+            // soil, but not near plants.
+          }
+        }
+      }
+
+      if (eligableSoil.length > 0) {
+        const newPlants = Math.ceil(eligableSoil.length * coverAmount);
+
+        eligableSoil.sort((a, b) => b.r - a.r);
+        //console.log(eligableSoil);
+
+        for (let i = 0; i<newPlants; i++) {
+          findPaths(eligableSoil[i].y, eligableSoil[i].x);
+        }
+      }
+        
+      animateProgressBar(); // Repeat the animation
+    });
+  }
+  
+  //animateProgressBar(); // Start the initial animation
+
   const table = createTable();
 
   //key presses
@@ -355,6 +411,59 @@ $(document).ready(function() {
     offsetX = element.closest("td").index();
     offsetY = element.closest("tr").index();
   });
+
+        // Create the select element
+        var speedSelect = $('<select>', { id: 'speedDropdown' });
+        var coverSelect = $('<select>', { id: 'coverDropdown' });
+
+        // Define the options
+        var speedOptions = [
+          { value: '0', text: 'Stopped' },
+          { value: '10000', text: 'Slow' },
+          { value: '5000', text: 'Medium' },
+          { value: '2000', text: 'Fast' }
+        ];
+        var coverOptions = [
+          { value: '0', text: 'None' },
+          { value: '0.01', text: 'One' },
+          { value: '0.1', text: 'Some' },
+          { value: '0.25', text: 'Many' },
+          { value: '1', text: 'All' }
+        ];
+  
+        // Add options to the select element
+        speedOptions.forEach(function(option) {
+          $('<option>', {
+            value: option.value,
+            text: option.text
+          }).appendTo(speedSelect);
+        });
+        coverOptions.forEach(function(option) {
+          $('<option>', {
+            value: option.value,
+            text: option.text
+          }).appendTo(coverSelect);
+        });
+  
+        // Append the select element to the body
+        $('body').append(speedSelect);
+        $('body').append(coverSelect);
+  
+        // Event handler for the dropdown change
+        speedSelect.change(function() {
+          var selectedValue = parseInt($(this).val()); // Get the selected option value
+
+          if (selectedValue == 0) {
+            progressBar.stop(); 
+          } else {
+            proggressLength = selectedValue;
+            animateProgressBar();
+          }
+        });
+        coverSelect.change(function() {
+          coverAmount = parseFloat($(this).val()); // Get the selected option value
+          console.log('coverSelect option:', coverAmount);
+        });
 
   //trees
   $(document).keydown(function(event) {
@@ -392,7 +501,7 @@ $(document).ready(function() {
       return;
     }
 
-    //add the tree imahge
+    //add the tree image
     if (image) {
       image.css({
         position: 'absolute',

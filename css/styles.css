@@ -33,3 +33,11 @@ tr {
   -o-user-drag: none; /* Opera */
   user-drag: none;
 }
+
+select {
+  color: black;
+}
+
+select option {
+  color: black;
+}
