@@ -68,6 +68,7 @@ function createTable(){
       // Click event to swap the plant
       image.on("click", function() {
         findPaths(offsetY, offsetX);
+        renderTable();
       });
 
       // Click event to return to soil
@@ -255,7 +256,6 @@ function findPaths(startRowIndex, startCellIndex) {
 
         if (sampleState == sampleStates.PERFECT_MATCH) {
           tableContents[startRowIndex][startCellIndex] = tableContents[rectangle.row+startRowIndex-i][rectangle.cell+startCellIndex-j];
-          renderTable();
 
           break search;
         } else if (sampleState == sampleStates.PARTIAL_MATCH) {
@@ -277,7 +277,6 @@ function findPaths(startRowIndex, startCellIndex) {
 
             tableContents[startRowIndex][startCellIndex] = 
               tableContents[testedRectangles[0].row+startRowIndex-testedRectangles[0].i][testedRectangles[0].cell+startCellIndex-testedRectangles[0].j];
-            renderTable();
 
             break search;
           }
@@ -379,6 +378,8 @@ $(document).ready(function() {
         for (let i = 0; i<newPlants; i++) {
           findPaths(eligableSoil[i].y, eligableSoil[i].x);
         }
+
+        renderTable();
       }
         
       animateProgressBar(); // Repeat the animation
