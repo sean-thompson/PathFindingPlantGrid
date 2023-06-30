@@ -313,16 +313,7 @@ function renderTable() {
     for (var x = 0; x < tableContents[y].length; x++) {
       if (tableContents[y][x] !== 0) {
         table.find('tr').eq(y).find('td').eq(x).css('background-color', '#63b647');
-      } else if (
-        (y > 0 && tableContents[y - 1][x] !== 0) || // Above
-        (y > 0 && x > 0 && tableContents[y - 1][x - 1] !== 0) || // Above Left
-        (x > 0 && tableContents[y][x - 1] !== 0) || // Left
-        (y < tableContents.length - 1 && x > 0 && tableContents[y + 1][x - 1] !== 0) || // Below Left
-        (y < tableContents.length - 1 && tableContents[y + 1][x] !== 0) || // Below
-        (y < tableContents.length - 1 && x < tableContents[y].length - 1 && tableContents[y + 1][x + 1] !== 0) || // Below Right
-        (x < tableContents[y].length - 1 && tableContents[y][x + 1] !== 0) || // Right
-        (y > 0 && x < tableContents[y].length - 1 && tableContents[y - 1][x + 1] !== 0) // Above Right
-      ) {
+      } else if (isNextToPlant(y, x)) {
         table.find('tr').eq(y).find('td').eq(x).css('background-color', '#a28d48');
       } else {
         table.find('tr').eq(y).find('td').eq(x).css('background-color', '#99A74B');
@@ -338,6 +329,17 @@ function renderTable() {
       }
     }
   }
+}
+
+function isNextToPlant(y, x) {
+  return (y > 0 && tableContents[y - 1][x] !== 0) || // Above
+  (y > 0 && x > 0 && tableContents[y - 1][x - 1] !== 0) || // Above Left
+  (x > 0 && tableContents[y][x - 1] !== 0) || // Left
+  (y < tableContents.length - 1 && x > 0 && tableContents[y + 1][x - 1] !== 0) || // Below Left
+  (y < tableContents.length - 1 && tableContents[y + 1][x] !== 0) || // Below
+  (y < tableContents.length - 1 && x < tableContents[y].length - 1 && tableContents[y + 1][x + 1] !== 0) || // Below Right
+  (x < tableContents[y].length - 1 && tableContents[y][x + 1] !== 0) || // Right
+  (y > 0 && x < tableContents[y].length - 1 && tableContents[y - 1][x + 1] !== 0) // Above Right
 }
 
 $(document).ready(function() {
@@ -362,21 +364,8 @@ $(document).ready(function() {
 
       for (var y = 0; y < tableContents.length; y++) {
         for (var x = 0; x < tableContents[y].length; x++) {
-          if (tableContents[y][x] !== 0) {
-            //not soil
-          } else if (
-            (y > 0 && tableContents[y - 1][x] !== 0) || // Above
-            (y > 0 && x > 0 && tableContents[y - 1][x - 1] !== 0) || // Above Left
-            (x > 0 && tableContents[y][x - 1] !== 0) || // Left
-            (y < tableContents.length - 1 && x > 0 && tableContents[y + 1][x - 1] !== 0) || // Below Left
-            (y < tableContents.length - 1 && tableContents[y + 1][x] !== 0) || // Below
-            (y < tableContents.length - 1 && x < tableContents[y].length - 1 && tableContents[y + 1][x + 1] !== 0) || // Below Right
-            (x < tableContents[y].length - 1 && tableContents[y][x + 1] !== 0) || // Right
-            (y > 0 && x < tableContents[y].length - 1 && tableContents[y - 1][x + 1] !== 0) // Above Right
-          ) {
+          if (tableContents[y][x] == 0 && isNextToPlant(y, x)) {
             eligableSoil.push({y:y, x:x, r:Math.random()});
-          } else {
-            // soil, but not near plants.
           }
         }
       }
@@ -462,7 +451,6 @@ $(document).ready(function() {
         });
         coverSelect.change(function() {
           coverAmount = parseFloat($(this).val()); // Get the selected option value
-          console.log('coverSelect option:', coverAmount);
         });
 
   //trees
